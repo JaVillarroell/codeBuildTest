@@ -1,0 +1,196 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform:
+- AWS::Serverless-2016-10-31
+Description: Movie Theater
+Resources:
+  getMovie:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getMovie
+      Handler: movies.getMovie
+      Runtime: python3.6
+      CodeUri: s3://awsomemoviebucket/3d5597f668fca3a3561118ef2394e6a7
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: MovieTheaterTable
+      Environment:
+        Variables:
+          MOVIE_THEATER_TABLE:
+            Ref: MovieTheaterTable
+      Events:
+        GetMovies:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: MovieTheaterAPI
+            Path: /movie/{movieID}
+            Method: GET
+  getRoomsSchedule:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getRoomsSchedule
+      Handler: movies.getRoomsSchedule
+      Runtime: python3.6
+      CodeUri: s3://awsomemoviebucket/3d5597f668fca3a3561118ef2394e6a7
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: MovieTheaterTable
+      Environment:
+        Variables:
+          MOVIE_THEATER_TABLE:
+            Ref: MovieTheaterTable
+      Events:
+        GetRoomsSchedule:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: MovieTheaterAPI
+            Path: /movieRooms/{movieID}
+            Method: GET
+  getClients:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getClients
+      Handler: movies.getClients
+      Runtime: python3.6
+      CodeUri: s3://awsomemoviebucket/3d5597f668fca3a3561118ef2394e6a7
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: MovieTheaterTable
+      Environment:
+        Variables:
+          MOVIE_THEATER_TABLE:
+            Ref: MovieTheaterTable
+      Events:
+        GetClients:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: MovieTheaterAPI
+            Path: /movie/{movieID}/room/{roomID}
+            Method: GET
+  getRoom:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getRoom
+      Handler: rooms.getRoom
+      Runtime: python3.6
+      CodeUri: s3://awsomemoviebucket/3d5597f668fca3a3561118ef2394e6a7
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: MovieTheaterTable
+      Environment:
+        Variables:
+          MOVIE_THEATER_TABLE:
+            Ref: MovieTheaterTable
+      Events:
+        GetRooms:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: MovieTheaterAPI
+            Path: /room/{roomID}
+            Method: GET
+  getClientMovies:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getClientMovies
+      Handler: clients.getClientMovies
+      Runtime: python3.6
+      CodeUri: s3://awsomemoviebucket/3d5597f668fca3a3561118ef2394e6a7
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: MovieTheaterTable
+      Environment:
+        Variables:
+          MOVIE_THEATER_TABLE:
+            Ref: MovieTheaterTable
+      Events:
+        GetClientMovies:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: MovieTheaterAPI
+            Path: /client/{clientID}
+            Method: GET
+  putMovieInfo:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: putMovieInfo
+      Handler: movies.putMovieInfo
+      Runtime: python3.6
+      CodeUri: s3://awsomemoviebucket/3d5597f668fca3a3561118ef2394e6a7
+      Policies:
+      - DynamoDBWritePolicy:
+          TableName:
+            Ref: MovieTheaterTable
+      Environment:
+        Variables:
+          MOVIE_THEATER_TABLE:
+            Ref: MovieTheaterTable
+      Events:
+        PutMoviesInformation:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: MovieTheaterAPI
+            Path: /movie/{movieID}
+            Method: PUT
+  putClients:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: putClients
+      Handler: clients.putClients
+      Runtime: python3.6
+      CodeUri: s3://awsomemoviebucket/3d5597f668fca3a3561118ef2394e6a7
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: MovieTheaterTable
+      - DynamoDBWritePolicy:
+          TableName:
+            Ref: MovieTheaterTable
+      Environment:
+        Variables:
+          MOVIE_THEATER_TABLE:
+            Ref: MovieTheaterTable
+      Events:
+        PutMoviesInformation:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: MovieTheaterAPI
+            Path: /movie/{movieID}/room/{roomID}
+            Method: PUT
+  MovieTheaterTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: movie-theater-table
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      KeySchema:
+      - AttributeName: pk
+        KeyType: HASH
+      - AttributeName: sk
+        KeyType: RANGE
+      AttributeDefinitions:
+      - AttributeName: pk
+        AttributeType: S
+      - AttributeName: sk
+        AttributeType: S
+  MovieTheaterAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: movieTheaterGateway
+      StageName: prod
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: s3://awsomemoviebucket/7b74e819ee3e225c84e5ff74f159fc3a
