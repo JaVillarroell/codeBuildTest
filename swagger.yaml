@@ -1,0 +1,153 @@
+openapi: 3.0.0
+
+paths:
+  /movie/{movieID}:
+    get:
+      summary: This endpoint returns movie information given an ID
+      parameters:
+        - name: movieID
+          in: path
+          required: true
+          description: movie unique ID
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getMovie/invocations"
+        httpMethod: "POST"
+    put:
+      summary: This endpoint inserts movie information with an ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                actors:
+                  type: array
+                  items:
+                    type: string
+                year:
+                  type: string
+      parameters:
+        - name: movieID
+          in: path
+          required: true
+          description: Movie unique ID
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:putMovieInfo/invocations"
+        httpMethod: "POST"
+  /movieRooms/{movieID}:
+    get:
+      summary: This endpoint returns cinema rooms schedule
+      parameters:
+        - name: movieID
+          in: path
+          required: true
+          description: movie unique ID
+        - name: date
+          in: query
+          required : true
+          schema:
+            type: string
+          description: Date for cinema room schedule
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRoomsSchedule/invocations"
+        httpMethod: "POST"
+  /movie/{movieID}/room/{roomID}:
+    get:
+      summary: This endpoint returns attending clients for a movie in a cinema room
+      parameters:
+        - name: movieID
+          in: path
+          required: true
+          description: movie unique ID
+        - name: roomID
+          in: path
+          required: true
+          description: room unique ID
+        - name: date
+          in: query
+          required : true
+          schema:
+            type: string
+          description: Date for cinema room 
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getClients/invocations"
+        httpMethod: "POST"
+        
+    put:
+      summary: This endpoint adds clients to a cinema room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                clients:
+                  type: array
+                  items:
+                    type: string
+      parameters:
+        - name: movieID
+          in: path
+          required: true
+          description: Movie unique ID
+        - name: roomID
+          in: path
+          required: true
+          description: room unique ID
+        - name: date
+          in: query
+          required : true
+          schema:
+            type: string
+          description: Date for cinema room
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:putClients/invocations"
+        httpMethod: "POST"
+        
+  /room/{roomID}:
+    get:
+      summary: This endpoint returns cinema rooms information
+      parameters:
+        - name: roomID
+          in: path
+          required: true
+          description: room unique ID
+        - name: date
+          in: query
+          required : true
+          schema:
+            type: string
+          description: Date for cinema room 
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getRoom/invocations"
+        httpMethod: "POST"
+        
+  /client/{clientID}:
+    get:
+      summary: This endpoint returns movies client has watched
+      parameters:
+        - name: clientID
+          in: path
+          required: true
+          description: client unique ID
+      x-amazon-apigateway-integration:
+        type: "aws_proxy"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:getClientMovies/invocations"
+        httpMethod: "POST"
